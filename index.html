@@ -8,18 +8,22 @@ Cursor personalizado (duas camadas: pequena e grande)
 Requisitos adicionais:
 Organização do repositório:
 READ.ME (API vai usar)
-.gitignore (ignorar arquivos desnecessários)
-ao clicar nos cards dos produtos, exibir um alerta com o nome do produto clicado.
-Utilizar ícones do Google Fonts para os ícones do cabeçalho.
-ao clicar no Adcionar compra, exibir uma nova janela (modal) com a mensagem "Produto adicionado ao carrinho".
-Ao clicar fora do modal, ele deve fechar.
-Ao clicar na comprar, deverá exibir o QRCode para pagamento.
-Ao clicar no Carrinho de compras, o mesmo deverá abrir menu lateral, mostrando o produto escolhido.
-No final da página,mostrar a geolocalização de quem esta acessando o site.
+funcionalidades para o sistema de e-commerce:
+1.Ao clicar nos cards dos produtos, exibir um alerta com o nome do produto clicado.
+2. Utilizar ícones do Google Fonts para os ícones do cabeçalho.
+3. Ao clicar no Adcionar compra, exibir uma nova janela (modal) com a mensagem "Produto adicionado ao carrinho".
+4. Ao clicar fora do modal, ele deve fechar.
+5. Ao clicar na comprar, deverá exibir o QRCode para pagamento.
+1. Botão de compra carrega um modal para apresentar um qrcode.
+4. Carregar mais produtos.
+5. Carrinho de compra(extra).6.
+6. chart.js
+7. Ao clicar no Carrinho de compras, o mesmo deverá abrir menu lateral, mostrando o produto escolhido.
+8. No final da página,mostrar a geolocalização de quem esta acessando o site.
 
-Codigos organizados (html, CSS, JavaScript) -->
+Codigos organizados (Html, CSS, JavaScript) -->
 
-<!-- index.html -->
+<!-- Inicio da página -->
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -28,41 +32,49 @@ Codigos organizados (html, CSS, JavaScript) -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Loja de Beleza — Protótipo</title>
 
-
 <!-- Google Icons -->
+
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 
+<!-- Link CSS -->
 
-<link rel="stylesheet" href="style.css" />
+ <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
 <!-- Cursor (duas camadas) -->
+
 <div class="cursor big" id="cursor-big"></div>
 <div class="cursor small" id="cursor-small"></div>
 
-
 <!-- Header -->
+
 <header class="header">
 <div class="header-left">
 <span class="material-symbols-outlined icon" id="home-btn" title="Home">home</span>
 </div>
 
-
+<!-- Título centralizado -->
 <h1 class="title">✨ E-Commerce Beauty Shop ✨</h1>
 
+<!-- Ícone do carrinho de compras -->
 
 <div class="header-right">
 <span class="material-symbols-outlined icon" id="cart-icon" title="Carrinho">
 shopping_cart_checkout
+
+<!-- Ícone do carrinho de compras com contador -->
+
 </span>
 <span id="contador-carrinho" class="cart-count">0</span>
 </div>
 </header>
 
-
 <!-- menu lateral -->
+
 <aside id="side-cart" class="side-cart hidden" aria-hidden="true">
 <header class="side-cart-header">
+  <!-- Título do carrinho e botão de fechar -->
 <h2>Carrinho</h2>
 <button id="close-side-cart" aria-label="Fechar">&times;</button>
 </header>
@@ -73,11 +85,9 @@ shopping_cart_checkout
 </footer>
 </aside>
 
-
 <!-- Main: container de cards -->
 <main class="main">
 <section id="produto-card" class="cards-container" aria-live="polite"></section>
-
 
 <!-- Geolocalização (rodapé da página) -->
 
@@ -86,7 +96,6 @@ shopping_cart_checkout
 <p id="geo-output">Obtendo localização...</p>
 </section>
 </main>
-
 
 <!-- Footer -->
 <footer class="footer">
