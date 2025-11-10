@@ -1,0 +1,95 @@
+<!--Estruturar um Protótipo de um site que vende produtos online
+Utilizando HTML, CSS e JavaScript e em colaboração com outra pessoa em um repositorio GitHub.
+Elementos obrigatórios:
+Cabeçalho (Header), titulo da loja centralizado e com ícones (Home e Carrinho de compras)
+Cards de produtos (mínimo 10 produtos) com imagem, nome, descrição e preço.
+Rodapé (Footer) com direitos autorais
+Cursor personalizado (duas camadas: pequena e grande)
+Requisitos adicionais:
+Organização do repositório:
+READ.ME (API vai usar)
+.gitignore (ignorar arquivos desnecessários)
+ao clicar nos cards dos produtos, exibir um alerta com o nome do produto clicado.
+Utilizar ícones do Google Fonts para os ícones do cabeçalho.
+ao clicar no Adcionar compra, exibir uma nova janela (modal) com a mensagem "Produto adicionado ao carrinho".
+Ao clicar fora do modal, ele deve fechar.
+Ao clicar na comprar, deverá exibir o QRCode para pagamento.
+Ao clicar no Carrinho de compras, o mesmo deverá abrir menu lateral, mostrando o produto escolhido.
+No final da página,mostrar a geolocalização de quem esta acessando o site.
+
+Codigos organizados (html, CSS, JavaScript) -->
+
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Loja de Beleza — Protótipo</title>
+
+
+<!-- Google Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<!-- Cursor (duas camadas) -->
+<div class="cursor big" id="cursor-big"></div>
+<div class="cursor small" id="cursor-small"></div>
+
+
+<!-- Header -->
+<header class="header">
+<div class="header-left">
+<span class="material-symbols-outlined icon" id="home-btn" title="Home">home</span>
+</div>
+
+
+<h1 class="title">✨ E-Commerce Beauty Shop ✨</h1>
+
+
+<div class="header-right">
+<span class="material-symbols-outlined icon" id="cart-icon" title="Carrinho">
+shopping_cart_checkout
+</span>
+<span id="contador-carrinho" class="cart-count">0</span>
+</div>
+</header>
+
+
+<!-- menu lateral -->
+<aside id="side-cart" class="side-cart hidden" aria-hidden="true">
+<header class="side-cart-header">
+<h2>Carrinho</h2>
+<button id="close-side-cart" aria-label="Fechar">&times;</button>
+</header>
+<div id="side-cart-items" class="side-cart-items"></div>
+<footer class="side-cart-footer">
+<div id="side-cart-total">Total: R$ 0,00</div>
+<button id="checkout-btn" class="btn btn-comprar">Comprar</button>
+</footer>
+</aside>
+
+
+<!-- Main: container de cards -->
+<main class="main">
+<section id="produto-card" class="cards-container" aria-live="polite"></section>
+
+
+<!-- Geolocalização (rodapé da página) -->
+
+<section class="geolocation" id="geolocation">
+<h3>Sua localização</h3>
+<p id="geo-output">Obtendo localização...</p>
+</section>
+</main>
+
+
+<!-- Footer -->
+<footer class="footer">
+&copy; <span id="ano"></span> E-Commerce Beauty Shop — Todos os direitos reservados
+</html>
+</body>
