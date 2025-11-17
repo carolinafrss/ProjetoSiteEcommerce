@@ -22,7 +22,6 @@ funcionalidades para o sistema de E-commerce:
 12. Colocar Banner na página de Promoção de Natal
 13. Menu de Home, Contato,sobre.
 
-Codigos organizados (Html, CSS, JavaScript) 
 -->
 
 <!-- Inicio da página -->                            
@@ -33,7 +32,7 @@ Codigos organizados (Html, CSS, JavaScript)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>✨ E-Commerce Shop — Protótipo ✨</title>
+    <title>✨ Zênite Store ✨</title>
     <!--Link CSS Style-->
     <link rel="stylesheet" href="styles.css">
     <!--Link da API Google-->
@@ -49,18 +48,21 @@ Codigos organizados (Html, CSS, JavaScript)
             <a href="contact.html" class="nav-link">Contato</a>
             <a href="about.html" class="nav-link">Sobre</a>
         </div>
-        <h1 class="title">✨ E-Commerce Shop ✨</h1>
+        <h1 class="title">✨ Zênite Store ✨</h1>
         <div class="header-right">
             <span class="material-symbols-outlined icon" id="carrinho-icon">shopping_cart_checkout</span>
         </div>
-    </header>
-
+    </header>  
+    <!-- Banner da página -->
     <div class="promo-banner">
+      <br>
         <h2>🎄 PROMOÇÃO DE NATAL! 🎁</h2>
         <p>Descontos de até 50% em produtos selecionados! Aproveite!</p>
-        <img src="https://www.giraofertas.com.br/wp-content/uploads/2023/09/Sunset-Ciclo-Cosmeticos-Deo-Colonia-Feminino-04.jpg" alt="Magia do Natal Perfumado!">
+        <br>
+        <!-- Imagem Banner da página -->
+        <img src="https://blogaromatico.com.br/wp-content/uploads/2024/12/O-que-sao-Acordes-3.jpeg" alt="Magia do Natal Perfumado!">
     </div>
-
+<!-- cabeçalho -->
     <main id="produto-card"></main>
 
     <div class="load-more-container">
@@ -95,12 +97,13 @@ Codigos organizados (Html, CSS, JavaScript)
         <h3>📊 Gráfico de Vendas (Produtos de Beleza)</h3>
         <canvas id="salesChart"></canvas>
     </div>
-    
+    <!-- Mapa -->
+
     <div id="map-container">
         <h3>📍 Localização da Loja (API Leaflet)</h3>
         <div id="map"></div>
     </div>
-
+<!-- Chat de Atendimento -->
     <div id="chat-websocket-container">
         <h3>💬 Chat de Atendimento</h3>
         <div id="chat-websocket"></div>
@@ -109,7 +112,7 @@ Codigos organizados (Html, CSS, JavaScript)
 <!-- Cabeçalho da página -->
 
     <footer class="footer">
-        &copy; <span id="ano"></span> E-Commerce Shop — Todos os direitos reservados
+        &copy; <span id="ano"> <p></p></span> Zênite Store — Todos os direitos reservados
     </footer>
 
     <script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js"></script>
