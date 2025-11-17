@@ -1,104 +1,122 @@
-<!--Estruturar um Protótipo de um site que vende produtos online
+<!--Estruture um Protótipo de um site que vende produtos online de beleza.
 Utilizando HTML, CSS e JavaScript e em colaboração com outra pessoa em um repositorio GitHub.
 Elementos obrigatórios:
 Cabeçalho (Header), titulo da loja centralizado e com ícones (Home e Carrinho de compras)
 Cards de produtos (mínimo 10 produtos) com imagem, nome, descrição e preço.
 Rodapé (Footer) com direitos autorais
-Cursor personalizado (duas camadas: pequena e grande)
-Requisitos adicionais:
-Organização do repositório:
 READ.ME (API vai usar)
-funcionalidades para o sistema de e-commerce:
-1.Ao clicar nos cards dos produtos, exibir um alerta com o nome do produto clicado.
+funcionalidades para o sistema de E-commerce:
+1. Ao clicar nos cards dos produtos, exibir um alerta com o nome do produto clicado.
 2. Utilizar ícones do Google Fonts para os ícones do cabeçalho.
 3. Ao clicar no Adcionar compra, exibir uma nova janela (modal) com a mensagem "Produto adicionado ao carrinho".
 4. Ao clicar fora do modal, ele deve fechar.
-5. Ao clicar na comprar, deverá exibir o QRCode para pagamento.
-1. Botão de compra carrega um modal para apresentar um qrcode.
-4. Carregar mais produtos.
-5. Carrinho de compra(extra).6.
-6. chart.js
-7. Ao clicar no Carrinho de compras, o mesmo deverá abrir menu lateral, mostrando o produto escolhido.
-8. No final da página,mostrar a geolocalização de quem esta acessando o site.
+5. Ao clicar na comprar, deverá exibir uma nova janela com o QRCode para pagamento (Botão de compra carrega um modal para apresentar um qrcode).
+6. Fazer uma página com formulerio de contato
+7. Carrinho de compra(extra).6.
+8. Ao clicar no Carrinho de compras, o mesmo deverá abrir menu lateral, mostrando o produto escolhido.
+9. No final da página,mostrar a  Geolocalização API da loja.
+8. Integrar o CHART API para exibir gráficos de vendas de produtos.
+9 Mapa do leaflet.
+10. Implementar as 3 páginas sugeridas no wireframe.
+11. Chat WebSocket API
+12. Colocar Banner na página de Promoção de Natal
+13. Menu de Home, Contato,sobre.
 
-Codigos organizados (Html, CSS, JavaScript) -->
+Codigos organizados (Html, CSS, JavaScript) 
+-->
 
-<!-- Inicio da página -->
-
+<!-- Inicio da página -->                            
+  
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Loja de Beleza — Protótipo</title>
-
-<!-- Google Icons -->
-
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-
-<!-- Link CSS -->
-
- <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>✨ E-Commerce Shop — Protótipo ✨</title>
+    <!--Link CSS Style-->
+    <link rel="stylesheet" href="styles.css">
+    <!--Link da API Google-->
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
 </head>
 <body>
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="nav-link"><span class="material-symbols-outlined icon">Home</span></a>
+            <a href="contact.html" class="nav-link">Contato</a>
+            <a href="about.html" class="nav-link">Sobre</a>
+        </div>
+        <h1 class="title">✨ E-Commerce Shop ✨</h1>
+        <div class="header-right">
+            <span class="material-symbols-outlined icon" id="carrinho-icon">shopping_cart_checkout</span>
+        </div>
+    </header>
 
-<!-- Cursor (duas camadas) -->
+    <div class="promo-banner">
+        <h2>🎄 PROMOÇÃO DE NATAL! 🎁</h2>
+        <p>Descontos de até 50% em produtos selecionados! Aproveite!</p>
+        <img src="https://www.giraofertas.com.br/wp-content/uploads/2023/09/Sunset-Ciclo-Cosmeticos-Deo-Colonia-Feminino-04.jpg" alt="Magia do Natal Perfumado!">
+    </div>
 
-<div class="cursor big" id="cursor-big"></div>
-<div class="cursor small" id="cursor-small"></div>
+    <main id="produto-card"></main>
 
-<!-- Header -->
+    <div class="load-more-container">
+        <button id="load-more-btn">Carregar Mais Produtos</button>
+    </div>
 
-<header class="header">
-<div class="header-left">
-<span class="material-symbols-outlined icon" id="home-btn" title="Home">home</span>
-</div>
+    <div id="carrinho-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <p>Produto adicionado ao carrinho!</p>
+        </div>
+    </div>
 
-<!-- Título centralizado -->
-<h1 class="title">✨ E-Commerce Beauty Shop ✨</h1>
+    <div id="compra-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>Pagamento via QR Code</h3>
+            <p>Escaneie o código abaixo para finalizar a compra:</p>
+            <div id="qrcode"></div>
+        </div>
+    </div>
+    
+    <div id="side-menu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" id="close-carrinho-btn">&times;</a>
+        <h2>🛒 Seu Carrinho</h2>
+        <div id="carrinho-produtos">
+            <p>Nenhum produto adicionado.</p>
+        </div>
+    </div>
 
-<!-- Ícone do carrinho de compras -->
+    <div id="chart-container">
+        <h3>📊 Gráfico de Vendas (Produtos de Beleza)</h3>
+        <canvas id="salesChart"></canvas>
+    </div>
+    
+    <div id="map-container">
+        <h3>📍 Localização da Loja (API Leaflet)</h3>
+        <div id="map"></div>
+    </div>
 
-<div class="header-right">
-<span class="material-symbols-outlined icon" id="cart-icon" title="Carrinho">
-shopping_cart_checkout
+    <div id="chat-websocket-container">
+        <h3>💬 Chat de Atendimento</h3>
+        <div id="chat-websocket"></div>
+        <input type="text" id="chat-input" placeholder="Digite sua mensagem e pressione Enter..." />
+    </div>
+<!-- Cabeçalho da página -->
 
-<!-- Ícone do carrinho de compras com contador -->
+    <footer class="footer">
+        &copy; <span id="ano"></span> E-Commerce Shop — Todos os direitos reservados
+    </footer>
 
-</span>
-<span id="contador-carrinho" class="cart-count">0</span>
-</div>
-</header>
-
-<!-- menu lateral -->
-
-<aside id="side-cart" class="side-cart hidden" aria-hidden="true">
-<header class="side-cart-header">
-  <!-- Título do carrinho e botão de fechar -->
-<h2>Carrinho</h2>
-<button id="close-side-cart" aria-label="Fechar">&times;</button>
-</header>
-<div id="side-cart-items" class="side-cart-items"></div>
-<footer class="side-cart-footer">
-<div id="side-cart-total">Total: R$ 0,00</div>
-<button id="checkout-btn" class="btn btn-comprar">Comprar</button>
-</footer>
-</aside>
-
-<!-- Main: container de cards -->
-<main class="main">
-<section id="produto-card" class="cards-container" aria-live="polite"></section>
-
-<!-- Geolocalização (rodapé da página) -->
-
-<section class="geolocation" id="geolocation">
-<h3>Sua localização</h3>
-<p id="geo-output">Obtendo localização...</p>
-</section>
-</main>
-
-<!-- Footer -->
-<footer class="footer">
-&copy; <span id="ano"></span> E-Commerce Beauty Shop — Todos os direitos reservados
-</html>
+    <script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20n6aRz22uA5U22UuzFfdV0yA4T+cR/aKx+YfN7rD1w="
+        crossorigin=""></script>
+    <script src="script.js"></script>
 </body>
+</html>

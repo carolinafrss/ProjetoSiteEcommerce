@@ -1,221 +1,329 @@
-// script.js - funcionalidades principais (cards, modal, carrinho, geolocalização, cursor)
+/* === Inicialização de Variáveis === */
+let allProducts = [];
+let displayedProductsCount = 0;
+const productsPerLoad = 10;
+const produtoCardContainer = document.getElementById("produto-card");
+const loadMoreBtn = document.getElementById("load-more-btn");
+const carrinhoModal = document.getElementById("carrinho-modal");
+const compraModal = document.getElementById("compra-modal");
+const sideMenu = document.getElementById('side-menu');
+const carrinhoIcon = document.getElementById('carrinho-icon');
 
-const produtosContainer = document.getElementById('produto-card');
-const contadorCarrinhoEl = document.getElementById('contador-carrinho');
-const modalOverlay = document.getElementById('modal-overlay');
-const modalContent = document.getElementById('modal-content');
-const modalClose = document.getElementById('modal-close');
-const anoEl = document.getElementById('ano');
-const cartIcon = document.getElementById('cart-icon');
-const sideCart = document.getElementById('side-cart');
-const sideCartItems = document.getElementById('side-cart-items');
-const closeSideCartBtn = document.getElementById('close-side-cart');
-const sideCartTotal = document.getElementById('side-cart-total');
-const checkoutBtn = document.getElementById('checkout-btn');
-const geoOutput = document.getElementById('geo-output');
+/* === Funções de E-commerce === */
 
-anoEl.innerText = new Date().getFullYear();
-
-/* Cursor customizado */
-const cursorSmall = document.getElementById('cursor-small');
-const cursorBig = document.getElementById('cursor-big');
-
-window.addEventListener('mousemove', (e) => {
-    const x = e.clientX, y = e.clientY;
-    cursorSmall.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    cursorBig.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-});
-
-/* Modal helpers */
-modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) closeModal();
-});
-modalClose.addEventListener('click', closeModal);
-
-function openModal(htmlContent) {
-    modalContent.innerHTML = htmlContent;
-    modalOverlay.classList.remove('hidden');
-}
-function closeModal() {
-    modalOverlay.classList.add('hidden');
-    modalContent.innerHTML = '';
-}
-
-/* Carrinho (armazenado em memória) */
-let cart = [];
-function atualizarContador() {
-    contadorCarrinhoEl.innerText = cart.length;
-}
-function adicionarAoCarrinho(prod) {
-    cart.push(prod);
-    atualizarContador();
-    renderSideCartItems();
-}
-function calcularTotal() {
-    const total = cart.reduce((s, p) => s + Number(p.price || 0), 0);
-    return total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-/* Side cart (abrir/fechar) */
-function abrirSideCart() {
-    sideCart.classList.remove('hidden');
-    sideCart.classList.add('visible');
-    sideCart.setAttribute('aria-hidden', 'false');
-}
-function fecharSideCart() {
-    sideCart.classList.remove('visible');
-    sideCart.classList.add('hidden');
-    sideCart.setAttribute('aria-hidden', 'true');
-}
-
-cartIcon.addEventListener('click', () => {
-    abrirSideCart();
-});
-closeSideCartBtn.addEventListener('click', fecharSideCart);
-
-function renderSideCartItems() {
-    sideCartItems.innerHTML = '';
-    if (cart.length === 0) {
-        sideCartItems.innerHTML = '<p>Seu carrinho está vazio.</p>';
-    } else {
-        cart.forEach((p, i) => {
-            const item = document.createElement('div');
-            item.className = 'side-cart-item';
-            item.innerHTML = `
-                <img src="${p.thumbnail}" alt="${escapeHtml(p.title)}" />
-                <div style="flex:1">
-                  <div style="font-weight:700">${escapeHtml(p.title)}</div>
-                  <div style="font-size:.9rem;color:#555">${escapeHtml(p.description)}</div>
-                  <div style="margin-top:6px;color:#ff4e18;font-weight:700">${Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
+/** * Função para carregar e exibir os produtos na tela 
+ * @param {number} startIndex - Índice inicial do array de produtos
+ * @param {number} count - Número de produtos a serem carregados
+ */
+function displayProducts(startIndex, count) {
+    const end = Math.min(startIndex + count, allProducts.length);
+    for (let i = startIndex; i < end; i++) {
+        const item = allProducts[i];
+        const cardHTML = `
+            <div class="card" data-product-title="${item.title}">
+                <img src="${item.thumbnail}" alt="${item.title}">
+                <h2>${item.title}</h2>
+                <p>${item.description}</p>
+                <div class="price">Preço: R$ ${item.price.toFixed(2)}</div>
+                <div class="rating">Avaliação: ${item.rating} / 5</div>
+                <div class="button-group">
+                    <button class="btn-comprar" data-product-id="${item.id}">Comprar</button>
+                    <button class="btn-carrinho" data-product-id="${item.id}" data-product-name="${item.title}">Adicionar ao Carrinho</button>
                 </div>
-                <button data-i="${i}" class="btn btn-remove">Remover</button>
-            `;
-            sideCartItems.appendChild(item);
-        });
-
-        // Add remove handlers
-        sideCartItems.querySelectorAll('.btn-remove').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = Number(e.currentTarget.getAttribute('data-i'));
-                cart.splice(idx, 1);
-                atualizarContador();
-                renderSideCartItems();
-            });
-        });
+            </div>`;
+        produtoCardContainer.innerHTML += cardHTML;
+        displayedProductsCount++;
     }
-    sideCartTotal.innerText = 'Total: ' + calcularTotal();
+
+    // Oculta o botão se todos os produtos foram carregados
+    if (displayedProductsCount >= allProducts.length) {
+        loadMoreBtn.style.display = 'none';
+    } else {
+        loadMoreBtn.style.display = 'block';
+    }
 }
 
-/* Geração do QR Code via API pública */
-function gerarQRCodeUrl(texto) {
-    return `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(texto)}&size=250x250`;
-}
-
-/* Carregar produtos da API e filtrar por categorias de 'beleza' */
-fetch('https://dummyjson.com/products')
+/** Busca os dados da api e inicia a primeira carga ***/
+fetch("https://dummyjson.com/products?limit=100")
     .then(res => res.json())
     .then(data => {
-        let produtos = data.products || [];
-        const beautyRegex = /skin|fragrance|fragrances|makeup|beauty|skincare|hair|cosmetic|perfume/i;
-        let produtosBeleza = produtos.filter(p => beautyRegex.test(p.category || ''));
-        if (produtosBeleza.length < 10) {
-            const extra = produtos.filter(p => beautyRegex.test(p.title + ' ' + p.description));
-            produtosBeleza = [...new Set([...produtosBeleza, ...extra])];
-        }
-        if (produtosBeleza.length < 10) {
-            produtosBeleza = produtos.slice(0, 12);
-        }
-        produtosBeleza = produtosBeleza.slice(0, Math.max(10, Math.min(30, produtosBeleza.length)));
-        montarCards(produtosBeleza);
+        allProducts = data.products;
+        displayProducts(0, productsPerLoad);
     })
-    .catch(err => {
-        console.error('Erro ao buscar produtos:', err);
-        produtosContainer.innerHTML = '<p>Erro ao carregar produtos. Tente novamente mais tarde.</p>';
+    /** tratamento de exeções **/
+    .catch(error => {
+        console.error("Erro ao carregar produto:", error);
+        produtoCardContainer.innerHTML = '<p>Erro ao carregar os produtos. Tente novamente mais tarde.</p>';
+        loadMoreBtn.style.display = 'none';
     });
 
-/* Monta os cards dinamicamente */
-function montarCards(lista) {
-    produtosContainer.innerHTML = '';
-    lista.forEach((p, idx) => {
-        const priceBRL = Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const thumb = p.thumbnail || (p.images && p.images[0]) || 'https://via.placeholder.com/300x200?text=Sem+imagem';
-
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.innerHTML = `
-      <img src="${thumb}" alt="${escapeHtml(p.title)}" loading="lazy"/>
-      <h2>${escapeHtml(p.title)}</h2>
-      <p>${escapeHtml(p.description)}</p>
-      <div class="price">${priceBRL}</div>
-      <div class="buttons">
-        <button class="btn btn-comprar" data-index="${idx}">Comprar</button>
-        <button class="btn btn-adicionar" data-index="${idx}">Adicionar ao Carrinho</button>
-      </div>
-    `;
-
-        // Alert quando clicar no card (exceto em botões)
-        card.addEventListener('click', (e) => {
-            if (e.target.tagName.toLowerCase() === 'button') return; // ignore clicks nos botões
-            alert(`Você clicou em: ${p.title}`);
-        });
-
-        // Botão adicionar
-        const btnAdicionar = card.querySelector('.btn-adicionar');
-        btnAdicionar.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            adicionarAoCarrinho(p);
-            openModal(`<h3>Produto adicionado ao carrinho</h3><p>${escapeHtml(p.title)}</p>`);
-        });
-
-        // Botão comprar
-        const btnComprar = card.querySelector('.btn-comprar');
-        btnComprar.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            const info = `${p.title} - ${p.price}`;
-            const qrUrl = gerarQRCodeUrl(info);
-            openModal(`<h3>Pagamento - ${escapeHtml(p.title)}</h3>
-                 <p>${priceBRL}</p>
-                 <img src="${qrUrl}" alt="QR Code para pagamento" style="max-width:100%;height:auto;margin-top:12px;display:block;margin-left:auto;margin-right:auto;">
-                 <p style="font-size:.85rem;margin-top:10px;color:#555">Abra seu app de pagamento e escaneie o QR Code.</p>`);
-        });
-
-        produtosContainer.appendChild(card);
-    });
-}
-
-/* util: escapando HTML simples (proteção mínima) */
-function escapeHtml(str = '') {
-    return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-}
-
-/* Checkout: ao clicar em comprar no side cart, exibe QR code com o resumo */
-checkoutBtn.addEventListener('click', () => {
-    if (cart.length === 0) {
-        openModal('<h3>Seu carrinho está vazio</h3>');
-        return;
-    }
-    const resumo = cart.map(p => `${p.title} — R$ ${Number(p.price).toFixed(2)}`).join('\n');
-    const total = calcularTotal();
-    const qrUrl = gerarQRCodeUrl(`Pagamento: ${resumo} | Total: ${total}`);
-    openModal(`<h3>Pagamento</h3><p>Total: ${total}</p><img src="${qrUrl}" alt="QR Code para pagamento" style="max-width:100%;height:auto;margin-top:12px;display:block;margin-left:auto;margin-right:auto;"></p><p style="font-size:.85rem;margin-top:10px;color:#555">Escaneie o QR Code com seu app de pagamento.</p>`);
+/* === Funcionalidade: Carregar Mais Produtos === */
+loadMoreBtn.addEventListener('click', () => {
+    displayProducts(displayedProductsCount, productsPerLoad);
 });
 
-/* Geolocalização: pega lat/long e exibe */
-if ('geolocation' in navigator) {
-    navigator.geolocation.getCurrentPosition((pos) => {
-        const { latitude, longitude } = pos.coords;
-        geoOutput.innerText = `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(6)}`;
-    }, (err) => {
-        geoOutput.innerText = 'Não foi possível obter a localização. Verifique as permissões do navegador.';
-    });
-} else {
-    geoOutput.innerText = 'Geolocalização não suportada neste navegador.';
+/* === Funcionalidade: Ações dos Cards e Modais === */
+
+document.addEventListener('click', function (event) {
+    // 1. Ao clicar nos cards dos produtos, exibir um alerta com o nome do produto clicado.
+    if (event.target.closest('.card') && !event.target.closest('button')) {
+        const card = event.target.closest('.card');
+        const productTitle = card.dataset.productTitle;
+        alert(`Você clicou no produto: ${productTitle}`);
+    }
+
+    // 3. Ao clicar no Adicionar ao Carrinho, exibir modal.
+    if (event.target.classList.contains('btn-carrinho')) {
+        carrinhoModal.style.display = 'block';
+        const productName = event.target.dataset.productName;
+        addToCart(productName);
+    }
+
+    // 5. Ao clicar no Comprar, exibir modal com QRCode.
+    if (event.target.classList.contains('btn-comprar')) {
+        const productId = event.target.dataset.productId;
+        const product = allProducts.find(p => p.id == productId);
+
+        // Abre o modal de compra
+        compraModal.style.display = 'block';
+
+        // Gera o QR Code
+        const qrCodeContainer = document.getElementById('qrcode');
+        qrCodeContainer.innerHTML = ''; // Limpa o conteúdo anterior
+        // Usando a biblioteca QRCode.js (importada no index.html)
+        new QRCode(qrCodeContainer, {
+            text: `Compra do produto: ${product.title}. Valor: R$ ${product.price.toFixed(2)}. Chave Pix: 12345678900`,
+            width: 150,
+            height: 150,
+            colorDark: "#ff4e18",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+
+    // Fecha o modal ao clicar no 'x'
+    if (event.target.classList.contains('close-btn')) {
+        event.target.closest('.modal').style.display = 'none';
+    }
+});
+
+// 4. Ao clicar fora do modal, ele deve fechar.
+window.onclick = function (event) {
+    if (event.target === carrinhoModal) {
+        carrinhoModal.style.display = "none";
+    }
+    if (event.target === compraModal) {
+        compraModal.style.display = "none";
+    }
+    // Fecha o menu lateral do carrinho ao clicar fora dele
+    if (event.target.id !== 'carrinho-icon' && !sideMenu.contains(event.target) && sideMenu.style.width !== '0px') {
+        sideMenu.style.width = '0';
+    }
 }
 
-/* Inicializar side cart vazio */
-renderSideCartItems();
+/* === Funcionalidade: Menu Lateral do Carrinho (Função 8) === */
+
+let carrinho = [];
+
+function addToCart(productName) {
+    // Adiciona o produto ao array/simulação de carrinho
+    carrinho.push(productName);
+    updateCartMenu();
+}
+
+function updateCartMenu() {
+    const carrinhoProdutosDiv = document.getElementById('carrinho-produtos');
+    carrinhoProdutosDiv.innerHTML = '';
+
+    if (carrinho.length === 0) {
+        carrinhoProdutosDiv.innerHTML = '<p>Nenhum produto adicionado.</p>';
+        return;
+    }
+
+    carrinho.forEach(name => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'carrinho-item';
+        itemDiv.innerHTML = `<span>${name}</span>`;
+        carrinhoProdutosDiv.appendChild(itemDiv);
+    });
+}
+
+// Abre o menu lateral
+if (carrinhoIcon) {
+    carrinhoIcon.addEventListener('click', function (e) {
+        e.stopPropagation(); // Evita que o evento de fechar seja acionado imediatamente
+        sideMenu.style.width = '300px';
+    });
+}
+// Fecha o menu lateral
+const closeCarrinhoBtn = document.getElementById('close-carrinho-btn');
+if (closeCarrinhoBtn) {
+    closeCarrinhoBtn.addEventListener('click', function () {
+        sideMenu.style.width = '0';
+    });
+}
+
+
+/* === Funcionalidade: Geolocalização com Leaflet (Função 9) === */
+function initLeafletMap() {
+    // Coordenadas da Loja (Simulação: Avenida Paulista, São Paulo)
+    const lojaLat = -23.56135;
+    const lojaLng = -46.65651;
+    const lojaLocation = [lojaLat, lojaLng];
+
+    // Inicializa o mapa
+    const map = L.map('map').setView(lojaLocation, 14);
+
+    // Adiciona o tile layer (Mapa OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://osm.org/go/M5uThFwU-">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Adiciona marcador da Loja
+    L.marker(lojaLocation).addTo(map)
+        .bindPopup('<b>E-Commerce Shop de Beleza</b><br>Aqui está nossa loja principal.')
+        .openPopup();
+
+
+
+    // Obtém e exibe a localização do usuário
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                const userLocation = [userLat, userLng];
+
+                // Adiciona marcador do Usuário
+                L.marker(userLocation, { icon: L.divIcon({ className: 'user-marker', html: '<span class="material-symbols-outlined" style="color:#007bff; font-size:30px;">person_pin_circle</span>', iconSize: [30, 30], iconAnchor: [15, 30] }) })
+                    .addTo(map)
+                    .bindPopup('Você está aqui!')
+                    .openPopup();
+
+                // Ajusta o zoom para mostrar ambas as localizações
+                const bounds = L.latLngBounds([lojaLocation, userLocation]);
+                map.fitBounds(bounds);
+            },
+            () => {
+                console.log("Geolocalização do usuário indisponível.");
+            }
+        );
+    } else {
+        console.log("Geolocalização não é suportada por este navegador.");
+    }
+}
+// Roda no final para garantir que o elemento 'map' esteja carregado
+document.addEventListener('DOMContentLoaded', initLeafletMap);
+
+
+/* === Funcionalidade: Gráfico de Vendas (Chart.js) (Função 8) === */
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('salesChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Protetor Solar', 'Sérum Facial', 'Hidratante Corporal', 'Máscara Capilar', 'Shampoo', 'Batom'],
+                datasets: [{
+                    label: 'Unidades Vendidas (Milhares)',
+                    data: [12, 19, 30, 25, 40, 35],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Milhares de Unidades'
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+
+
+/* === Funcionalidade: Chat WebSocket (Função 11) === */
+
+const chatContainer = document.getElementById('chat-websocket');
+const chatInput = document.getElementById('chat-input');
+let socket;
+
+function initWebSocket() {
+    if (chatContainer && chatInput) {
+        try {
+            // Echo server é usado apenas para simulação. Em produção, seria o servidor real.
+            socket = new WebSocket('wss://echo.websocket.org');
+
+            socket.addEventListener('open', function (event) {
+                console.log('Conexão WebSocket aberta');
+                const msg = document.createElement('div');
+                msg.textContent = 'Sistema: Bem-vindo ao chat! Como podemos ajudar?';
+                chatContainer.appendChild(msg);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+
+            socket.addEventListener('message', function (event) {
+                const messageElement = document.createElement('div');
+                messageElement.textContent = `Atendente: ${event.data}`;
+                messageElement.style.color = 'blue';
+                chatContainer.appendChild(messageElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+
+            socket.addEventListener('error', function (event) {
+                console.error('WebSocket Error:', event);
+                const msg = document.createElement('div');
+                msg.textContent = 'Sistema: Erro na conexão do chat.';
+                msg.style.color = 'red';
+                chatContainer.appendChild(msg);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+
+            chatInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' && chatInput.value.trim() !== '') {
+                    const message = chatInput.value.trim();
+                    socket.send(message);
+
+                    const userMessage = document.createElement('div');
+                    userMessage.textContent = `Você: ${message}`;
+                    userMessage.style.textAlign = 'right';
+                    chatContainer.appendChild(userMessage);
+
+                    chatInput.value = '';
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            });
+
+        } catch (error) {
+            console.error("Erro ao iniciar WebSocket:", error);
+            chatContainer.innerHTML = '<div>Chat indisponível no momento.</div>';
+        }
+    }
+}
+document.addEventListener('DOMContentLoaded', initWebSocket);
+
+
+/* === Utilitários === */
+// Spript para mostrar o ano atual no rodapé
+document.getElementById("ano").textContent = new Date().getFullYear();

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre - E-Commerce Shop</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+<body class="secondary-page">
+    <header class="header">
+        <div class="header-left">
+            <a href="index.html" class="nav-link"><span class="material-symbols-outlined icon">home</span></a>
+            <a href="contact.html" class="nav-link">Contato</a>
+            <a href="about.html" class="nav-link">Sobre</a>
+        </div>
+        <h1 class="title">✨ Sobre Nós ✨</h1>
+        <div class="header-right">
+            <span class="material-symbols-outlined icon" id="carrinho-icon-about">shopping_cart_checkout</span>
+        </div>
+    </header>
+
+    <main class="content-container">
+        <h2>Nossa História e Missão</h2>
+        <p>A **E-Commerce Shop de Beleza** nasceu da paixão por cosméticos e do desejo de oferecer produtos de alta qualidade, acessíveis e que celebram a beleza em todas as suas formas. Nossa missão é inspirar a autoconfiança e o autocuidado, trazendo as melhores marcas e tendências diretamente para você.</p>
+        
+        <p>Trabalhamos em parceria com fornecedores sustentáveis e priorizamos a transparência e a satisfação do cliente em cada compra. Acreditamos que a beleza é uma jornada, e estamos aqui para acompanhá-lo nela.</p>
+
+        <h3>Nossos Valores</h3>
+        <ul>
+            <li>**Qualidade:** Produtos testados e aprovados.</li>
+            <li>**Sustentabilidade:** Práticas que respeitam o meio ambiente.</li>
+            <li>**Diversidade:** Celebração de todos os tipos e tons de pele.</li>
+            <li>**Inovação:** Sempre em busca das últimas novidades do mercado.</li>
+        </ul>
+    </main>
+
+    <footer class="footer">
+        &copy; <span id="ano-about"></span> E-Commerce Shop — Todos os direitos reservados
+    </footer>
+    <script>
+        document.getElementById("ano-about").textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
