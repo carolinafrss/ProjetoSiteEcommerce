@@ -1,30 +1,51 @@
 # ProjetoSiteEcommerce
 
-# Protótipo E-Commerce Beauty Shop
+# ✨ E-Commerce Shop de Beleza - Protótipo
 
-Protótipo de loja online (front-end) com HTML, CSS e JavaScript. Funcionalidades:
+Este repositório contém o protótipo de um e-commerce de produtos de beleza, desenvolvido com **HTML, CSS e JavaScript** (Vanilla JS) para simular as principais funcionalidades de uma loja online.
 
-- Header com título e ícones (Google Material Symbols)
-- Cards dinâmicos (mínimo 10 produtos) buscados pela API `https://dummyjson.com/products`
-- Ao clicar no card (fora dos botões) mostra `alert` com o nome do produto
-- Botão **Adicionar ao Carrinho**: adiciona item ao carrinho em memória e abre modal confirmando
-- Botão **Comprar**: abre modal com QR Code para pagamento
-- Carrinho (menu lateral) que mostra itens adicionados, possibilita remover itens e ver total
-- Modal fecha ao clicar fora ou no botão fechar
-- Cursor personalizado (duas camadas)
-- Exibição da geolocalização (latitude/longitude) no rodapé da página
+## 🚀 Funcionalidades Implementadas
 
-## Estrutura do repositório
-/ (raiz) ├─ index.html ├─ style.css ├─ script.js ├─ README.md └─ .gitignore
+O protótipo atende aos seguintes requisitos do sistema:
 
-## Como rodar
+1.  **Cabeçalho e Navegação:**
+    * Header fixo com ícones do Google Fonts (Home e Carrinho).
+    * Links de navegação para **Home, Contato e Sobre**.
+2.  **Cards de Produtos:**
+    * Carregamento inicial de produtos via **API DummyJSON** (`https://dummyjson.com/products`).
+    * Exibição de imagem, nome, descrição, preço e avaliação.
+    * **Efeito Hover** nos cards.
+3.  **Funcionalidades de Interação:**
+    * **Alerta ao Clicar no Card:** Exibe o nome do produto ao clicar no card (fora dos botões).
+    * **Modal 'Adicionar ao Carrinho':** Exibe um modal de confirmação.
+    * **Modal 'Comprar' (QRCode):** Exibe um modal com um **QR Code** de simulação de pagamento, gerado pela biblioteca **QRCode.js**.
+    * **Fechamento de Modais:** Os modais fecham ao clicar no 'X' ou fora da área de conteúdo (fora do modal).
+4.  **Carrinho de Compras (Menu Lateral):**
+    * Ao clicar no ícone do carrinho, um **menu lateral** se abre, exibindo os produtos adicionados.
+5.  **Páginas Secundárias:**
+    * **`contact.html`:** Página com um formulário de contato.
+    * **`about.html`:** Página "Sobre Nós".
+6.  **Carregamento de Conteúdo:**
+    * Botão **"Carregar Mais Produtos"** que exibe itens adicionais da API (Simulação de paginação).
+7.  **Visualização de Dados:**
+    * **Gráfico de Vendas:** Integração com a biblioteca **Chart.js** para exibir um gráfico de barras de vendas simuladas.
+    * **Mapa de Geolocalização:** Integração com a **API Leaflet** para exibir a localização da loja e a localização do usuário (se permitido).
+8.  **Comunicação:**
+    * **Chat WebSocket:** Simulação de chat de atendimento em tempo real, conectado a um servidor de eco público.
+9.  **Promoção:**
+    * **Banner** de Promoção de Natal.
+10. **Rodapé:**
+    * Direitos autorais com o ano atualizado dinamicamente.
 
-1. Clone o repositório
-2. Abra `index.html` no navegador (ou use um servidor local como `live-server` ou `http-server`)
-3. Permita geolocalização quando o navegador solicitar (para ver coordenadas)
+## 📦 Dependências Externas (APIs e Bibliotecas)
 
-## Observações
+O projeto utiliza as seguintes bibliotecas externas, importadas via CDN no `index.html`:
 
-- O protótipo utiliza `https://api.qrserver.com` para gerar QR Codes públicos (apenas para demonstração).
-- Os dados dos produtos vêm de `https://dummyjson.com/products` (API de demonstração).
-
+| Biblioteca / API | Função |
+| :--- | :--- |
+| **DummyJSON** | Fornece dados simulados de produtos (GET Request). |
+| **Google Fonts** | Ícones do cabeçalho (`Material Symbols Outlined`). |
+| **QRCode.js** | Geração do QR Code para a simulação de pagamento. |
+| **Chart.js** | Geração de gráficos de vendas. |
+| **Leaflet API** | Geração do mapa de geolocalização. |
+| **WebSockets (wss://echo.websocket.org)** | Simulação de chat em tempo real. |
