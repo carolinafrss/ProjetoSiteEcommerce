@@ -1,8 +1,8 @@
 # ProjetoSiteEcommerce
 
-# ✨ E-Commerce Shop de Beleza - Protótipo
+# ✨ Zênite Store - Protótipo
 
-Este repositório contém o protótipo de um e-commerce de produtos de beleza, desenvolvido com **HTML, CSS e JavaScript** (Vanilla JS) para simular as principais funcionalidades de uma loja online.
+Este repositório contém o protótipo de um e-commerce de vários produtos desenvolvido com **HTML, CSS e JavaScript** (Vanilla JS) para simular as principais funcionalidades de uma loja online.
 
 ## 🚀 Funcionalidades Implementadas
 
