@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "node.js": "^0.0.1-security",
+    "ol": "^10.7.0",
+    "websocket": "^1.0.35"
+  }
+}
