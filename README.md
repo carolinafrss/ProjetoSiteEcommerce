@@ -25,6 +25,7 @@ O protótipo atende aos seguintes requisitos do sistema:
 5.  **Páginas Secundárias:**
     * **`contact.html`:** Página com um formulário de contato.
     * **`about.html`:** Página "Sobre Nós".
+    * ** Product.html`:** Página "Produto".
 6.  **Carregamento de Conteúdo:**
     * Botão **"Carregar Mais Produtos"** que exibe itens adicionais da API (Simulação de paginação).
 7.  **Visualização de Dados:**
