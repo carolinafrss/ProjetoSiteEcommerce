@@ -1,0 +1,63 @@
+<!-- product.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Produto — Zênite Store</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+<body class="secondary-page">
+  <!-- Header (reaproveitado) -->
+  <header class="header">
+    <div class="header-left">
+      <a href="index.html" class="nav-link"><span class="material-symbols-outlined icon">home</span></a>
+      <a href="contact.html" class="nav-link">Contato</a>
+      <a href="about.html" class="nav-link">Sobre</a>
+    </div>
+    <h1 class="title">Zênite <span class="title-accent">Store</span></h1>
+    <div class="header-right">
+      <span class="material-symbols-outlined icon" id="carrinho-icon-product">shopping_cart_checkout</span>
+    </div>
+  </header>
+
+  <!-- Conteúdo do produto -->
+  <main class="content-container">
+    <!-- Aqui script.js carrega o produto com base no querystring ?id= -->
+    <div id="product-detail">
+      <h2 id="produto-title">Carregando...</h2>
+      <div id="produto-img-wrap"><img id="produto-img" src="" alt="Imagem do produto"></div>
+      <p id="produto-desc"></p>
+      <p id="produto-price"></p>
+
+      <div class="button-group">
+        <button id="product-qrcode-btn" class="btn-comprar">Exibir QRCode para pagamento</button>
+        <a href="index.html" class="btn-carrinho">Voltar</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal QR no product.html -->
+  <div id="compra-modal-product" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h3>Pagamento via QRCode</h3>
+      <div id="qrcode-product"></div>
+      <p id="qrcode-product-info"></p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    &copy; <span id="ano-product"></span> Zênite Store — Todos os direitos reservados
+  </footer>
+
+  <!-- Bibliotecas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // mostra ano no rodapé desta página
+    document.getElementById('ano-product').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

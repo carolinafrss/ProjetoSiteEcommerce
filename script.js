@@ -1,32 +1,34 @@
 /* === Inicialização de Variáveis === */
+/* (mantido do seu arquivo original) */
 let allProducts = [];
 let displayedProductsCount = 0;
 const productsPerLoad = 10;
+
+// referências DOM — em algumas páginas os IDs podem não existir, verificamos antes de usar
 const produtoCardContainer = document.getElementById("produto-card");
 const loadMoreBtn = document.getElementById("load-more-btn");
 const carrinhoModal = document.getElementById("carrinho-modal");
 const compraModal = document.getElementById("compra-modal");
 const sideMenu = document.getElementById('side-menu');
-const carrinhoIcon = document.getElementById('carrinho-icon');
+// cors: carrinho icon pode ter id diferente nas páginas
+const carrinhoIcon = document.getElementById('carrinho-icon') || document.getElementById('carrinho-icon-product') || document.getElementById('carrinho-icon-about') || document.getElementById('carrinho-icon-contact');
 
-/* === Funções de E-commerce === */
-
-/** * Função para carregar e exibir os produtos na tela 
- * @param {number} startIndex - Índice inicial do array de produtos
- * @param {number} count - Número de produtos a serem carregados
- */
+/* === Função: exibe produtos na index (cards) === */
 function displayProducts(startIndex, count) {
+    if (!produtoCardContainer) return;
     const end = Math.min(startIndex + count, allProducts.length);
     for (let i = startIndex; i < end; i++) {
         const item = allProducts[i];
         const cardHTML = `
-            <div class="card" data-product-title="${item.title}">
+            <!-- card: produto -->
+            <div class="card" data-product-title="${item.title}" data-product-id="${item.id}">
                 <img src="${item.thumbnail}" alt="${item.title}">
                 <h2>${item.title}</h2>
                 <p>${item.description}</p>
                 <div class="price">Preço: R$ ${item.price.toFixed(2)}</div>
                 <div class="rating">Avaliação: ${item.rating} / 5</div>
                 <div class="button-group">
+                    <!-- Comprar redireciona para product.html?id= -->
                     <button class="btn-comprar" data-product-id="${item.id}">Comprar</button>
                     <button class="btn-carrinho" data-product-id="${item.id}" data-product-name="${item.title}">Adicionar ao Carrinho</button>
                 </div>
@@ -35,295 +37,363 @@ function displayProducts(startIndex, count) {
         displayedProductsCount++;
     }
 
-    // Oculta o botão se todos os produtos foram carregados
+    // Esconde botão se todos carregados
     if (displayedProductsCount >= allProducts.length) {
-        loadMoreBtn.style.display = 'none';
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
     } else {
-        loadMoreBtn.style.display = 'block';
+        if (loadMoreBtn) loadMoreBtn.style.display = 'block';
     }
 }
 
-/** Busca os dados da api e inicia a primeira carga ***/
+/* === Fetch dos produtos (API) === */
 fetch("https://dummyjson.com/products?limit=100")
     .then(res => res.json())
     .then(data => {
         allProducts = data.products;
         displayProducts(0, productsPerLoad);
     })
-    /** tratamento de exeções **/
     .catch(error => {
         console.error("Erro ao carregar produto:", error);
-        produtoCardContainer.innerHTML = '<p>Erro ao carregar os produtos. Tente novamente mais tarde.</p>';
-        loadMoreBtn.style.display = 'none';
+        if (produtoCardContainer) produtoCardContainer.innerHTML = '<p>Erro ao carregar os produtos. Tente novamente mais tarde.</p>';
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
     });
 
-/* === Funcionalidade: Carregar Mais Produtos === */
-loadMoreBtn.addEventListener('click', () => {
-    displayProducts(displayedProductsCount, productsPerLoad);
-});
+/* === Carregar mais === */
+if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', () => {
+        displayProducts(displayedProductsCount, productsPerLoad);
+    });
+}
 
-/* === Funcionalidade: Ações dos Cards e Modais === */
-
+/* === Ações gerais de clique (cards, modais, botões) === */
 document.addEventListener('click', function (event) {
-    // 1. Ao clicar nos cards dos produtos, exibir um alerta com o nome do produto clicado.
+    // 1) Clicar no card (exceto nos botões) mostra alerta com nome do produto
     if (event.target.closest('.card') && !event.target.closest('button')) {
         const card = event.target.closest('.card');
         const productTitle = card.dataset.productTitle;
         alert(`Você clicou no produto: ${productTitle}`);
     }
 
-    // 3. Ao clicar no Adicionar ao Carrinho, exibir modal.
+    // 3) Ao clicar em 'Adicionar ao Carrinho'
     if (event.target.classList.contains('btn-carrinho')) {
-        carrinhoModal.style.display = 'block';
-        const productName = event.target.dataset.productName;
-        addToCart(productName);
+        if (carrinhoModal) {
+            carrinhoModal.style.display = 'block';
+            carrinhoModal.setAttribute('aria-hidden', 'false');
+            const productName = event.target.dataset.productName;
+            addToCartById(event.target.dataset.productId || null, productName);
+            // preenche mensagem modal
+            const msg = document.getElementById('carrinho-modal-msg');
+            if (msg) msg.textContent = productName;
+            // link para abrir a página do produto
+            const verLink = document.getElementById('ver-produto-link');
+            if (verLink && event.target.dataset.productId) {
+                verLink.href = `product.html?id=${event.target.dataset.productId}`;
+            }
+        }
     }
 
-    // 5. Ao clicar no Comprar, exibir modal com QRCode.
+    // 5) Ao clicar em 'Comprar' do card: abre modal com QRCode (ou redireciona para product.html)
     if (event.target.classList.contains('btn-comprar')) {
         const productId = event.target.dataset.productId;
-        const product = allProducts.find(p => p.id == productId);
+        // redireciona para product.html?id= para mostrar detalhes (requisito 6/7)
+        if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+            // redireciona
+            window.location.href = `product.html?id=${productId}`;
+            return;
+        }
 
-        // Abre o modal de compra
-        compraModal.style.display = 'block';
+        // se estiver na página onde existe o modal global, abre o modal
+        if (compraModal) {
+            const product = allProducts.find(p => p.id == productId);
+            compraModal.style.display = 'block';
+            compraModal.setAttribute('aria-hidden', 'false');
 
-        // Gera o QR Code
-        const qrCodeContainer = document.getElementById('qrcode');
-        qrCodeContainer.innerHTML = ''; // Limpa o conteúdo anterior
-        // Usando a biblioteca QRCode.js (importada no index.html)
-        new QRCode(qrCodeContainer, {
-            text: `Compra do produto: ${product.title}. Valor: R$ ${product.price.toFixed(2)}. Chave Pix: 12345678900`,
-            width: 150,
-            height: 150,
-            colorDark: "#ff4e18",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
+            const qrCodeContainer = document.getElementById('qrcode');
+            qrCodeContainer && (qrCodeContainer.innerHTML = '');
+            if (product && qrCodeContainer) {
+                // Gera QRCode com informação (string simples; em produção usar gateway)
+                new QRCode(qrCodeContainer, {
+                    text: `PIX - Zênite Store | Produto: ${product.title} | Valor: R$ ${product.price.toFixed(2)} | Chave: 123.456.789-00`,
+                    width: 180,
+                    height: 180
+                });
+                const info = document.getElementById('qrcode-info');
+                if (info) info.textContent = `Pague R$ ${product.price.toFixed(2)} via PIX (chave demonstrativa).`;
+            }
+        }
     }
 
-    // Fecha o modal ao clicar no 'x'
+    // Fecha modais ao clicar no 'x'
     if (event.target.classList.contains('close-btn')) {
-        event.target.closest('.modal').style.display = 'none';
+        const modal = event.target.closest('.modal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+        }
     }
 });
 
-// 4. Ao clicar fora do modal, ele deve fechar.
-window.onclick = function (event) {
+/* === Fecha modal ao clicar fora (requisito 5) === */
+window.addEventListener('click', function (event) {
     if (event.target === carrinhoModal) {
         carrinhoModal.style.display = "none";
+        carrinhoModal.setAttribute('aria-hidden', 'true');
     }
     if (event.target === compraModal) {
         compraModal.style.display = "none";
+        compraModal.setAttribute('aria-hidden', 'true');
     }
-    // Fecha o menu lateral do carrinho ao clicar fora dele
-    if (event.target.id !== 'carrinho-icon' && !sideMenu.contains(event.target) && sideMenu.style.width !== '0px') {
-        sideMenu.style.width = '0';
+
+    // Fecha menu lateral se clicar fora
+    if (sideMenu && sideMenu.style.width && sideMenu.style.width !== '0px') {
+        if (!event.target.closest('.side-menu') && event.target.id !== 'carrinho-icon') {
+            sideMenu.style.width = '0';
+            sideMenu.setAttribute('aria-hidden', 'true');
+        }
     }
-}
+});
 
-/* === Funcionalidade: Menu Lateral do Carrinho (Função 8) === */
-
+/* === Carrinho lateral e funções de adicionar === */
 let carrinho = [];
 
+function addToCartById(productId, productName) {
+    // Adiciona objeto com id + nome (para futuros usos)
+    const product = allProducts.find(p => p.id == productId);
+    const name = product ? product.title : (productName || 'Produto');
+    carrinho.push({ id: productId, title: name, price: product ? product.price : 0 });
+    updateCartMenu();
+}
+
 function addToCart(productName) {
-    // Adiciona o produto ao array/simulação de carrinho
-    carrinho.push(productName);
+    // compatibilidade com versão anterior
+    carrinho.push({ id: null, title: productName, price: 0 });
     updateCartMenu();
 }
 
 function updateCartMenu() {
     const carrinhoProdutosDiv = document.getElementById('carrinho-produtos');
+    if (!carrinhoProdutosDiv) return;
     carrinhoProdutosDiv.innerHTML = '';
 
     if (carrinho.length === 0) {
         carrinhoProdutosDiv.innerHTML = '<p>Nenhum produto adicionado.</p>';
+        document.getElementById('cart-total') && (document.getElementById('cart-total').textContent = 'Total: R$ 0.00');
         return;
     }
 
-    carrinho.forEach(name => {
+    let total = 0;
+    carrinho.forEach(item => {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'carrinho-item';
-        itemDiv.innerHTML = `<span>${name}</span>`;
+        itemDiv.innerHTML = `<span>${item.title}</span><span>R$ ${(item.price || 0).toFixed(2)}</span>`;
         carrinhoProdutosDiv.appendChild(itemDiv);
+        total += (item.price || 0);
+    });
+
+    // frete grátis condicional
+    const freteMsg = document.createElement('div');
+    if (total >= 100) {
+        freteMsg.innerHTML = '<small>Entrega grátis aplicada (compras a partir de R$100).</small>';
+    } else {
+        freteMsg.innerHTML = `<small>Entrega grátis a partir de R$100. Falta R$ ${(100 - total).toFixed(2)}</small>`;
+    }
+    carrinhoProdutosDiv.appendChild(freteMsg);
+
+    document.getElementById('cart-total') && (document.getElementById('cart-total').textContent = `Total: R$ ${total.toFixed(2)}`);
+}
+
+/* Abre o menu lateral ao clicar no ícone do carrinho */
+if (carrinhoIcon) {
+    carrinhoIcon.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (sideMenu) {
+            sideMenu.style.width = '320px';
+            sideMenu.setAttribute('aria-hidden', 'false');
+            updateCartMenu();
+        }
     });
 }
 
-// Abre o menu lateral
-if (carrinhoIcon) {
-    carrinhoIcon.addEventListener('click', function (e) {
-        e.stopPropagation(); // Evita que o evento de fechar seja acionado imediatamente
-        sideMenu.style.width = '300px';
-    });
-}
-// Fecha o menu lateral
+/* Fecha menu lateral ao clicar no botão de fechar */
 const closeCarrinhoBtn = document.getElementById('close-carrinho-btn');
 if (closeCarrinhoBtn) {
     closeCarrinhoBtn.addEventListener('click', function () {
-        sideMenu.style.width = '0';
+        if (sideMenu) {
+            sideMenu.style.width = '0';
+            sideMenu.setAttribute('aria-hidden', 'true');
+        }
     });
 }
 
-
-/* === Funcionalidade: Geolocalização com Leaflet (Função 9) === */
+/* === LEAFLET MAP (geolocalização) === */
 function initLeafletMap() {
-    // Coordenadas da Loja (Simulação: Avenida Paulista, São Paulo)
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return; // só roda se elemento existir
     const lojaLat = -23.56135;
     const lojaLng = -46.65651;
     const lojaLocation = [lojaLat, lojaLng];
 
-    // Inicializa o mapa
-    const map = L.map('map').setView(lojaLocation, 14);
-
-    // Adiciona o tile layer (Mapa OpenStreetMap)
+    const map = L.map('map').setView(lojaLocation, 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://osm.org/go/M5uThFwU-">OpenStreetMap</a> contributors'
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Adiciona marcador da Loja
-    L.marker(lojaLocation).addTo(map)
-        .bindPopup('<b>E-Commerce Shop de Beleza</b><br>Aqui está nossa loja principal.')
-        .openPopup();
+    L.marker(lojaLocation).addTo(map).bindPopup('<b>Zênite Store</b><br>Loja principal');
 
-
-
-    // Obtém e exibe a localização do usuário
+    // Geolocalização do usuário
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const userLat = position.coords.latitude;
-                const userLng = position.coords.longitude;
-                const userLocation = [userLat, userLng];
-
-                // Adiciona marcador do Usuário
-                L.marker(userLocation, { icon: L.divIcon({ className: 'user-marker', html: '<span class="material-symbols-outlined" style="color:#007bff; font-size:30px;">person_pin_circle</span>', iconSize: [30, 30], iconAnchor: [15, 30] }) })
-                    .addTo(map)
-                    .bindPopup('Você está aqui!')
-                    .openPopup();
-
-                // Ajusta o zoom para mostrar ambas as localizações
-                const bounds = L.latLngBounds([lojaLocation, userLocation]);
-                map.fitBounds(bounds);
-            },
-            () => {
-                console.log("Geolocalização do usuário indisponível.");
-            }
-        );
+        navigator.geolocation.getCurrentPosition(position => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            const userMarker = L.marker([userLat, userLng]).addTo(map).bindPopup('Você está aqui!');
+            // ajusta bounds
+            const bounds = L.latLngBounds([[userLat, userLng], lojaLocation]);
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }, () => {
+            console.log("Permissão de geolocalização negada ou indisponível.");
+        });
     } else {
-        console.log("Geolocalização não é suportada por este navegador.");
+        console.log("Geolocalização não suportada.");
     }
 }
-// Roda no final para garantir que o elemento 'map' esteja carregado
-document.addEventListener('DOMContentLoaded', initLeafletMap);
 
-
-/* === Funcionalidade: Gráfico de Vendas (Chart.js) (Função 8) === */
-document.addEventListener('DOMContentLoaded', function () {
+/* === Chart.js (vendas) === */
+function initSalesChart() {
     const ctx = document.getElementById('salesChart');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Protetor Solar', 'Sérum Facial', 'Hidratante Corporal', 'Máscara Capilar', 'Shampoo', 'Batom'],
-                datasets: [{
-                    label: 'Unidades Vendidas (Milhares)',
-                    data: [12, 19, 30, 25, 40, 35],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)',
-                        'rgba(255, 159, 64, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Milhares de Unidades'
-                        }
-                    }
-                }
+    if (!ctx) return;
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Protetor', 'Sérum', 'Hidratante', 'Máscara', 'Shampoo', 'Batom'],
+            datasets: [{
+                label: 'Unidades Vendidas',
+                data: [12, 19, 30, 25, 40, 35],
+                /* cores ficam por estilo padrão */
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
+
+/* === Chat WebSocket (simulado) === */
+function initWebSocket() {
+    const chatContainer = document.getElementById('chat-websocket');
+    const chatInput = document.getElementById('chat-input');
+    if (!chatContainer || !chatInput) return;
+
+    try {
+        socket = new WebSocket('wss://echo.websocket.events'); // echo de teste
+        socket.addEventListener('open', () => {
+            const msg = document.createElement('div');
+            msg.textContent = 'Sistema: Bem-vindo ao chat!';
+            chatContainer.appendChild(msg);
+        });
+        socket.addEventListener('message', (evt) => {
+            const msg = document.createElement('div');
+            msg.textContent = `Atendente: ${evt.data}`;
+            msg.style.color = 'blue';
+            chatContainer.appendChild(msg);
+        });
+        chatInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                socket.send(chatInput.value.trim());
+                const me = document.createElement('div');
+                me.textContent = `Você: ${chatInput.value.trim()}`;
+                me.style.textAlign = 'right';
+                chatContainer.appendChild(me);
+                chatInput.value = '';
             }
         });
+    } catch (err) {
+        chatContainer.innerHTML = '<div>Chat indisponível.</div>';
+    }
+}
+
+/* === GERAL: inicializações DOMContentLoaded === */
+document.addEventListener('DOMContentLoaded', function () {
+    // mapa
+    initLeafletMap();
+    // chart
+    initSalesChart();
+    // chat
+    initWebSocket();
+
+    // mostra ano no footer principal (se existir)
+    const ano = document.getElementById("ano");
+    if (ano) ano.textContent = new Date().getFullYear();
+
+    // carregar detalhes do product.html se estivermos nessa página
+    if (window.location.pathname.endsWith('product.html')) {
+        loadProductDetailFromQuery();
     }
 });
 
-
-/* === Funcionalidade: Chat WebSocket (Função 11) === */
-
-const chatContainer = document.getElementById('chat-websocket');
-const chatInput = document.getElementById('chat-input');
-let socket;
-
-function initWebSocket() {
-    if (chatContainer && chatInput) {
-        try {
-            // Echo server é usado apenas para simulação. Em produção, seria o servidor real.
-            socket = new WebSocket('wss://echo.websocket.org');
-
-            socket.addEventListener('open', function (event) {
-                console.log('Conexão WebSocket aberta');
-                const msg = document.createElement('div');
-                msg.textContent = 'Sistema: Bem-vindo ao chat! Como podemos ajudar?';
-                chatContainer.appendChild(msg);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+/* === Função: carrega detalhe do produto em product.html via ?id= === */
+function loadProductDetailFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (!id) return;
+    // Se os produtos já foram carregados via fetch, usa; caso contrário, busca product específico
+    if (allProducts && allProducts.length) {
+        const p = allProducts.find(x => x.id == id);
+        fillProductDetail(p);
+    } else {
+        // busca produto individual na API
+        fetch(`https://dummyjson.com/products/${id}`)
+            .then(r => r.json())
+            .then(p => fillProductDetail(p))
+            .catch(err => {
+                console.error('Erro ao carregar produto:', err);
             });
-
-            socket.addEventListener('message', function (event) {
-                const messageElement = document.createElement('div');
-                messageElement.textContent = `Atendente: ${event.data}`;
-                messageElement.style.color = 'blue';
-                chatContainer.appendChild(messageElement);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            });
-
-            socket.addEventListener('error', function (event) {
-                console.error('WebSocket Error:', event);
-                const msg = document.createElement('div');
-                msg.textContent = 'Sistema: Erro na conexão do chat.';
-                msg.style.color = 'red';
-                chatContainer.appendChild(msg);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            });
-
-            chatInput.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter' && chatInput.value.trim() !== '') {
-                    const message = chatInput.value.trim();
-                    socket.send(message);
-
-                    const userMessage = document.createElement('div');
-                    userMessage.textContent = `Você: ${message}`;
-                    userMessage.style.textAlign = 'right';
-                    chatContainer.appendChild(userMessage);
-
-                    chatInput.value = '';
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
-            });
-
-        } catch (error) {
-            console.error("Erro ao iniciar WebSocket:", error);
-            chatContainer.innerHTML = '<div>Chat indisponível no momento.</div>';
-        }
     }
 }
-document.addEventListener('DOMContentLoaded', initWebSocket);
 
+/* Preenche elementos do product.html */
+function fillProductDetail(p) {
+    if (!p) return;
+    const title = document.getElementById('produto-title');
+    const img = document.getElementById('produto-img');
+    const desc = document.getElementById('produto-desc');
+    const price = document.getElementById('produto-price');
 
-/* === Utilitários === */
-// Spript para mostrar o ano atual no rodapé
-document.getElementById("ano").textContent = new Date().getFullYear();
+    if (title) title.textContent = p.title;
+    if (img) img.src = p.thumbnail || (p.images && p.images[0]) || '';
+    if (desc) desc.textContent = p.description;
+    if (price) price.textContent = `Preço: R$ ${p.price.toFixed(2)}`;
+
+    // botão qrcode na product.html
+    const qBtn = document.getElementById('product-qrcode-btn');
+    if (qBtn) {
+        qBtn.addEventListener('click', function () {
+            const modal = document.getElementById('compra-modal-product');
+            if (modal) {
+                const qContainer = document.getElementById('qrcode-product');
+                qContainer && (qContainer.innerHTML = '');
+                new QRCode(qContainer, {
+                    text: `PIX - Zênite Store | Produto: ${p.title} | Valor: R$ ${p.price.toFixed(2)} | Chave: 123.456.789-00`,
+                    width: 180,
+                    height: 180
+                });
+                const info = document.getElementById('qrcode-product-info');
+                if (info) info.textContent = `Pague R$ ${p.price.toFixed(2)} via PIX (exemplo).`;
+                modal.style.display = 'block';
+            }
+        });
+    }
+
+    // fechar modal product.html
+    document.addEventListener('click', function (ev) {
+        if (ev.target.classList && ev.target.classList.contains('close-btn')) {
+            const mm = ev.target.closest('.modal');
+            mm && (mm.style.display = 'none');
+        }
+    });
+
+    // fechar ao clicar fora
+    window.addEventListener('click', function (ev) {
+        const modal = document.getElementById('compra-modal-product');
+        if (modal && ev.target === modal) modal.style.display = 'none';
+    });
+}

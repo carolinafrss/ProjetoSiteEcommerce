@@ -1,125 +1,170 @@
-<!--Estruture um Protótipo de um site que vende produtos online de beleza.
-Utilizando HTML, CSS e JavaScript e em colaboração com outra pessoa em um repositorio GitHub.
+<!--Estruture um Protótipo de um site que vende produtos online de beleza com as seqguintes especificações:
+
+a) Utilizando HTML, CSS e JavaScrip.
+b) Colaboração com outra pessoa em um repositorio GitHub.
+
 Elementos obrigatórios:
-Cabeçalho (Header), titulo da loja centralizado e com ícones (Home e Carrinho de compras)
-Cards de produtos (mínimo 10 produtos) com imagem, nome, descrição e preço.
-Rodapé (Footer) com direitos autorais
-READ.ME (API vai usar)
-funcionalidades para o sistema de E-commerce:
-1. Ao clicar nos cards dos produtos, exibir um alerta com o nome do produto clicado.
-2. Utilizar ícones do Google Fonts para os ícones do cabeçalho.
-3. Ao clicar no Adcionar compra, exibir uma nova janela (modal) com a mensagem "Produto adicionado ao carrinho".
-4. Ao clicar fora do modal, ele deve fechar.
-5. Ao clicar na comprar, deverá exibir uma nova janela com o QRCode para pagamento (Botão de compra carrega um modal para apresentar um qrcode).
-6. Fazer uma página com formulerio de contato
-7. Carrinho de compra(extra).6.
-8. Ao clicar no Carrinho de compras, o mesmo deverá abrir menu lateral, mostrando o produto escolhido.
-9. No final da página,mostrar a  Geolocalização API da loja.
-8. Integrar o CHART API para exibir gráficos de vendas de produtos.
-9 Mapa do leaflet.
-10. Implementar as 3 páginas sugeridas no wireframe.
-11. Chat WebSocket API
-12. Colocar Banner na página de Promoção de Natal
-13. Menu de Home, Contato,sobre.
+
+1. Cabeçalho, titulo da loja centralizado e com ícones (Home e Carrinho de compras) (Header).
+2. Cards de produtos (mínimo 10 produtos) com imagem, nome, descrição e preço.
+3. Rodapé (Footer) com direitos autorais(Footer).
+4. READ.ME (API vai usar)
+
+C) Funcionalidades para o sistema de E-commerce:
+
+
+1. Banner no topo da página com uma imagem de produtos de vendas no Natal (imagem online)
+2. icones do Google Fonts para os ícones do cabeçalho.
+3. Nos cards dos produtos, é exibido um alerta com o nome do produto clicado.
+4. Ao clicar no botão "adicionar ao carrinho", é exibido uma nova janela (modal) com a mensagem "Produto adicionado ao carrinho".
+5. Ao clicar fora do modal, a janela deverá fechar.
+6. A clicar no botão "comprar" abre uma nova página com a foto e descrição do produto o QRCODE com o preço para pagamento.
+7. Ao clicar na comprar, deverá exibir uma nova janela com o QRCode para pagamento, na mesma página o Botão de compra carrega um modal para apresentar um qrcode.
+8. Ao clicar no Carrinho de compras, o mesmo deverá abrir o menu lateral mostrando o produto escolhido.
+9. Tem um  Carrinho de compra (extra).
+10. Menu de Home, Contato, Sobre.
+11. Criada uma  página com Formulario de contato.
+12. Criada uma página com informações sobre a loja e melhorar seu espaçamemnto e apresentação.
+13. Criada um pagina com  Acompanhamento do Pedindo colocando em tempo real a API de Geolozalização da Loja no Brasil (Mapa do leaflet).
+14.  No final da página, mostra a  Geolocalização API da loja ((Mapa do leaflet).
+15. Integrado o CHART API para exibir gráficos de vendas de produtos.
+16. Implementado 3 páginas sugeridas no wireframe.
+17. Ao final da página foi iserido Chat WebSocket API.
+18. O CSS utilizou cores elegantes no site como Champanhe, ocre, preto, branco e Dourado.
+19. Foi estilizado de modo eslegante o titulo " Zênite Store" da página.
 
 -->
 
 <!-- Inicio da página -->                            
   
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>✨ Zênite Store ✨</title>
-    <!--Link CSS Style-->
-    <link rel="stylesheet" href="styles.css">
-    <!--Link da API Google-->
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Zênite Store — Beleza e Elegância</title>
+
+  <!-- Estilos (arquivo enviado por você: styles.css). -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Google Material Symbols (ícones do Google Fonts). -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <!-- Leaflet CSS (mapa) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- QRCode.js será usado via CDN no script -->
 </head>
 <body>
-    <header class="header">
-        <div class="header-left">
-            <a href="index.html" class="nav-link"><span class="material-symbols-outlined icon">Home</span></a>
-            <a href="contact.html" class="nav-link">Contato</a>
-            <a href="about.html" class="nav-link">Sobre</a>
-        </div>
-        <h1 class="title">✨ Zênite Store ✨</h1>
-        <div class="header-right">
-            <span class="material-symbols-outlined icon" id="carrinho-icon">shopping_cart_checkout</span>
-        </div>
-    </header>  
-    <!-- Banner da página -->
-    <div class="promo-banner">
-      <br>
-        <h2>🎄 PROMOÇÃO DE NATAL! 🎁</h2>
-        <p>Descontos de até 50% em produtos selecionados! Aproveite!</p>
-        <br>
-        <!-- Imagem Banner da página -->
-        <img src="https://blogaromatico.com.br/wp-content/uploads/2024/12/O-que-sao-Acordes-3.jpeg" alt="Magia do Natal Perfumado!">
+  <!-- HEADER: Título central estilizado + ícones Home e Carrinho -->
+  <header class="header">
+    <div class="header-left">
+      <!-- Ícone Home -->
+      <a href="index.html" class="nav-link"><span class="material-symbols-outlined icon">home</span></a>
+      <a href="contact.html" class="nav-link">Contato</a>
+      <a href="about.html" class="nav-link">Sobre</a>
     </div>
-<!-- cabeçalho -->
-    <main id="produto-card"></main>
 
+    <!-- TÍTULO ELEGANTE: "Zênite Store" - estilizado via CSS -->
+    <h1 class="title">Zênite <span class="title-accent">Store</span></h1>
+
+    <div class="header-right">
+      <!-- Ícone Carrinho: abre menu lateral -->
+      <span class="material-symbols-outlined icon" id="carrinho-icon">shopping_cart_checkout</span>
+    </div>
+  </header>
+
+  <!-- BANNER DE NATAL (imagem online) -->
+  <section class="promo-banner" aria-label="Promoção de Natal">
+    <!-- imagem de fundo e texto sobreposto via CSS, mas coloquei texto por acessibilidade -->
+    <h2>Promoção de Natal — Presentes e Kits com desconto 🎄</h2>
+    <p>Frete grátis acima de R$ 100 — Aproveite!</p>
+  </section>
+
+  <!-- MAIN: cards de produtos -->
+  <main id="main-content">
+    <!-- Container onde script.js vai inserir os cards -->
+    <div id="produto-card" class="cards-container" aria-live="polite"></div>
+
+    <!-- botão 'Carregar mais' -->
     <div class="load-more-container">
-        <button id="load-more-btn">Carregar Mais Produtos</button>
+      <button id="load-more-btn">Carregar mais produtos</button>
     </div>
 
-    <div id="carrinho-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <p>Produto adicionado ao carrinho!</p>
-        </div>
-    </div>
+    <!-- Chart (vendas) -->
+    <section id="chart-container" aria-label="Gráfico de vendas">
+      <canvas id="salesChart" width="400" height="200"></canvas>
+    </section>
 
-    <div id="compra-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h3>Pagamento via QR Code</h3>
-            <p>Escaneie o código abaixo para finalizar a compra:</p>
-            <div id="qrcode"></div>
-        </div>
-    </div>
-    
-    <div id="side-menu" class="side-menu">
-        <a href="javascript:void(0)" class="close-btn" id="close-carrinho-btn">&times;</a>
-        <h2>🛒 Seu Carrinho</h2>
-        <div id="carrinho-produtos">
-            <p>Nenhum produto adicionado.</p>
-        </div>
-    </div>
+    <!-- Mapa e geolocalização (Leaflet) -->
+    <section id="map-container" aria-label="Localização da loja">
+      <h2>Onde estamos</h2>
+      <div id="map"></div>
+    </section>
 
-    <div id="chart-container">
-        <h3>📊 Gráfico de Vendas (Produtos de Beleza)</h3>
-        <canvas id="salesChart"></canvas>
-    </div>
-    <!-- Mapa -->
+    <!-- Chat WebSocket -->
+    <section id="chat-websocket-container">
+      <h2>Chat de atendimento</h2>
+      <div id="chat-websocket"></div>
+      <input id="chat-input" placeholder="Digite e pressione Enter" />
+    </section>
+  </main>
 
-    <div id="map-container">
-        <h3>📍 Localização da Loja (API Leaflet)</h3>
-        <div id="map"></div>
+  <!-- MODAL: Carrinho (simples) -->
+  <div id="carrinho-modal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <span class="close-btn" aria-label="Fechar">&times;</span>
+      <h3>Produto adicionado ao carrinho</h3>
+      <p id="carrinho-modal-msg">Produto</p>
+      <!-- Link para abrir página product.html com o produto selecionado (extra pedido) -->
+      <a id="ver-produto-link" class="btn-link" href="#">Ver detalhes e pagar</a>
     </div>
-<!-- Chat de Atendimento -->
-    <div id="chat-websocket-container">
-        <h3>💬 Chat de Atendimento</h3>
-        <div id="chat-websocket"></div>
-        <input type="text" id="chat-input" placeholder="Digite sua mensagem e pressione Enter..." />
+  </div>
+
+  <!-- MODAL: Compra com QRCode -->
+  <div id="compra-modal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <span class="close-btn" aria-label="Fechar">&times;</span>
+      <h3>Pagamento via QRCode</h3>
+      <div id="qrcode"></div>
+      <p id="qrcode-info"></p>
     </div>
-<!-- Cabeçalho da página -->
+  </div>
 
-    <footer class="footer">
-        &copy; <span id="ano"> <p></p></span> Zênite Store — Todos os direitos reservados
-    </footer>
+  <!-- SIDE MENU: Carrinho lateral -->
+  <aside id="side-menu" class="side-menu" aria-hidden="true">
+    <a href="javascript:void(0)" class="close-btn" id="close-carrinho-btn">&times;</a>
+    <h2>Seu Carrinho</h2>
+    <div id="carrinho-produtos"></div>
+    <div class="cart-summary">
+      <p id="cart-total">Total: R$ 0.00</p>
+      <a id="checkout-link" class="btn-comprar" href="#">Ir para Checkout</a>
+    </div>
+  </aside>
 
-    <script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20n6aRz22uA5U22UuzFfdV0yA4T+cR/aKx+YfN7rD1w="
-        crossorigin=""></script>
-    <script src="script.js"></script>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="payments">
+        <!-- ícones pagos (simples com texto/ícone material para demonstração) -->
+        <span class="material-symbols-outlined">currency_exchange</span> PIX
+        <span class="material-symbols-outlined">credit_card</span> Cartão
+        <span class="material-symbols-outlined">receipt_long</span> Boleto
+      </div>
+      <div class="copyright">
+        &copy; <span id="ano"></span> Zênite Store — Todos os direitos reservados
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <!-- Bibliotecas externas necessárias -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Seu script principal (arquivo enviado por você: script.js) -->
+  <script src="script.js"></script>
 </body>
 </html>
